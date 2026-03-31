@@ -138,33 +138,31 @@
 
     /* ── Footer ── */
     #footer {
-      padding: 7px 10px;
       background: #f0f0f0;
       border-top: 1px solid #ddd;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
       flex-shrink: 0;
-      min-height: 38px;
-    }
-    #footer-left {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-    }
-    #footer-hint {
-      font-size: 11px;
-      color: #999;
     }
     #bulk-section {
       display: none;
       align-items: center;
       gap: 6px;
-      flex: 1;
-      min-width: 0;
+      padding: 5px 10px;
+      border-bottom: 1px solid #ddd;
     }
     #bulk-section.visible { display: flex; }
+    #footer-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+    }
+    #footer-hint {
+      flex: 1;
+      font-size: 11px;
+      color: #999;
+    }
     #bulk-label { color: #555; white-space: nowrap; font-size: 12px; }
     #bulk-select-wrapper { flex: 1; min-width: 0; }
     #bulk-set {
@@ -179,16 +177,6 @@
       flex-shrink: 0;
     }
     #bulk-set:hover { background: #3a5ce7; }
-    #footer-right { display: flex; gap: 6px; flex-shrink: 0; }
-    #btn-close {
-      padding: 4px 12px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    #btn-close:hover { background: #eee; }
     #btn-apply {
       padding: 4px 16px;
       background: #4a6cf7;
@@ -201,6 +189,15 @@
     }
     #btn-apply:hover:not(:disabled) { background: #3a5ce7; }
     #btn-apply:disabled { background: #b0b8d4; cursor: default; }
+    #btn-close {
+      padding: 4px 12px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #btn-close:hover { background: #eee; }
   </style>
 </head>
 <body>
@@ -220,23 +217,21 @@
   </div>
 
   <div id="footer">
-    <div id="footer-left">
-      <!-- Shown when rows are selected (replaces hint, table doesn't shift) -->
-      <div id="bulk-section">
-        <span id="bulk-label">Set target for selected:</span>
-        <div class="select-wrapper" id="bulk-select-wrapper">
-          <span class="swatch" id="bulk-swatch" style="background:#ccc"></span>
-          <input type="text" class="select-display" id="bulk-display" readonly placeholder="Select material…">
-          <span class="select-arrow">▾</span>
-        </div>
-        <button id="bulk-set">Set</button>
+    <!-- Shown when rows are selected; appears above the bottom bar without shifting the table -->
+    <div id="bulk-section">
+      <span id="bulk-label">Set target for selected:</span>
+      <div class="select-wrapper" id="bulk-select-wrapper">
+        <span class="swatch" id="bulk-swatch" style="background:#ccc"></span>
+        <input type="text" class="select-display" id="bulk-display" readonly placeholder="Select material…">
+        <span class="select-arrow">▾</span>
       </div>
-      <!-- Shown when no rows are selected -->
-      <div id="footer-hint">Click to select row · Shift+click for range · Ctrl+click for individual</div>
+      <button id="bulk-set">Set</button>
     </div>
-    <div id="footer-right">
-      <button id="btn-close">Close</button>
+    <!-- Always visible -->
+    <div id="footer-bottom">
+      <span id="footer-hint">Click to select · Shift+click for range · Ctrl+click to toggle</span>
       <button id="btn-apply" disabled>Apply</button>
+      <button id="btn-close">Close</button>
     </div>
   </div>
 
@@ -430,6 +425,15 @@
       if (e.key === 'Escape') closeDropdown();
     });
 
+    // Click on empty area of the table clears row selection
+    document.getElementById('table-container').addEventListener('click', function(e) {
+      if (!e.target.closest('tr')) {
+        selectedIndices = [];
+        lastClickedIndex = null;
+        renderSelection();
+      }
+    });
+
     // ── Row visual state ──────────────────────────────────────────────────
     function updateRowStyle(i) {
       rows[i].el.classList.toggle('changed', rows[i].toName !== rows[i].fromName);
@@ -465,9 +469,7 @@
       rows.forEach(function(row, i) {
         row.el.classList.toggle('selected', selectedIndices.indexOf(i) !== -1);
       });
-      var hasSel = selectedIndices.length > 0;
-      document.getElementById('bulk-section').classList.toggle('visible', hasSel);
-      document.getElementById('footer-hint').style.display = hasSel ? 'none' : 'block';
+      document.getElementById('bulk-section').classList.toggle('visible', selectedIndices.length > 0);
     }
 
     // ── Bulk target dropdown ──────────────────────────────────────────────
