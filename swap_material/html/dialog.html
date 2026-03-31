@@ -17,57 +17,6 @@
       overflow: hidden;
     }
 
-    /* ── Toolbar ── */
-    #toolbar {
-      padding: 8px 10px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    #filter {
-      flex: 1;
-      padding: 4px 8px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 13px;
-      outline: none;
-    }
-    #filter:focus { border-color: #4a6cf7; }
-
-    /* ── Bulk action bar ── */
-    #bulk-bar {
-      padding: 6px 10px;
-      background: #e8f0fe;
-      border-bottom: 1px solid #c5d3f0;
-      display: none;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    #bulk-bar.visible { display: flex; }
-    #bulk-label { color: #444; white-space: nowrap; }
-    #bulk-target {
-      flex: 1;
-      padding: 3px 6px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 13px;
-    }
-    #bulk-set {
-      padding: 4px 14px;
-      background: #4a6cf7;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    #bulk-set:hover { background: #3a5ce7; }
-
     /* ── Table ── */
     #table-container {
       flex: 1;
@@ -100,25 +49,16 @@
     .mat-cell { display: flex; align-items: center; gap: 6px; }
     .swatch {
       display: inline-block;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border: 1px solid rgba(0,0,0,0.2);
       border-radius: 2px;
       flex-shrink: 0;
     }
     .tex-icon { font-size: 10px; color: #999; }
     .mat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
     .arrow-cell { color: #aaa; text-align: center; width: 28px; padding: 5px 0; }
-
-    select.target-select {
-      width: 100%;
-      padding: 3px 4px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      font-size: 12px;
-      background: #fff;
-    }
+    .target-cell { padding: 4px 8px 4px 4px; }
 
     #empty-msg {
       padding: 48px 20px;
@@ -126,18 +66,122 @@
       color: #999;
     }
 
+    /* ── Custom select wrapper ── */
+    .select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .select-wrapper:hover { border-color: #aaa; }
+    .select-wrapper:focus-within { border-color: #4a6cf7; }
+    .select-display {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      background: transparent;
+      cursor: pointer;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .select-arrow { color: #888; font-size: 10px; flex-shrink: 0; }
+
+    /* ── Dropdown overlay ── */
+    #dropdown-overlay {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex-direction: column;
+      max-height: 220px;
+    }
+    #dropdown-filter {
+      padding: 5px 8px;
+      border: none;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+      outline: none;
+      flex-shrink: 0;
+    }
+    #dropdown-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .dropdown-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dropdown-option:hover { background: #f0f4ff; }
+    .dropdown-option.active { background: #e0eaff; }
+    #dropdown-empty {
+      padding: 10px 8px;
+      color: #999;
+      font-size: 12px;
+      text-align: center;
+    }
+
     /* ── Footer ── */
     #footer {
-      padding: 8px 10px;
+      padding: 7px 10px;
       background: #f0f0f0;
       border-top: 1px solid #ddd;
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
       gap: 8px;
       flex-shrink: 0;
+      min-height: 38px;
     }
+    #footer-left {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+    #footer-hint {
+      font-size: 11px;
+      color: #999;
+    }
+    #bulk-section {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    #bulk-section.visible { display: flex; }
+    #bulk-label { color: #555; white-space: nowrap; font-size: 12px; }
+    #bulk-select-wrapper { flex: 1; min-width: 0; }
+    #bulk-set {
+      padding: 3px 12px;
+      background: #4a6cf7;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #bulk-set:hover { background: #3a5ce7; }
+    #footer-right { display: flex; gap: 6px; flex-shrink: 0; }
     #btn-close {
-      padding: 5px 14px;
+      padding: 4px 12px;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 3px;
@@ -146,7 +190,7 @@
     }
     #btn-close:hover { background: #eee; }
     #btn-apply {
-      padding: 5px 18px;
+      padding: 4px 16px;
       background: #4a6cf7;
       color: #fff;
       border: none;
@@ -160,16 +204,6 @@
   </style>
 </head>
 <body>
-
-  <div id="toolbar">
-    <input id="filter" type="text" placeholder="Filter source materials…">
-  </div>
-
-  <div id="bulk-bar">
-    <span id="bulk-label">Set target for selected:</span>
-    <select id="bulk-target"></select>
-    <button id="bulk-set">Set</button>
-  </div>
 
   <div id="table-container">
     <p id="empty-msg" style="display:none">No materials found in the selection.</p>
@@ -186,25 +220,49 @@
   </div>
 
   <div id="footer">
-    <button id="btn-close">Close</button>
-    <button id="btn-apply" disabled>Apply</button>
+    <div id="footer-left">
+      <!-- Shown when rows are selected (replaces hint, table doesn't shift) -->
+      <div id="bulk-section">
+        <span id="bulk-label">Set target for selected:</span>
+        <div class="select-wrapper" id="bulk-select-wrapper">
+          <span class="swatch" id="bulk-swatch" style="background:#ccc"></span>
+          <input type="text" class="select-display" id="bulk-display" readonly placeholder="Select material…">
+          <span class="select-arrow">▾</span>
+        </div>
+        <button id="bulk-set">Set</button>
+      </div>
+      <!-- Shown when no rows are selected -->
+      <div id="footer-hint">Click to select row · Shift+click for range · Ctrl+click for individual</div>
+    </div>
+    <div id="footer-right">
+      <button id="btn-close">Close</button>
+      <button id="btn-apply" disabled>Apply</button>
+    </div>
+  </div>
+
+  <!-- Shared searchable dropdown (single instance, repositioned on open) -->
+  <div id="dropdown-overlay">
+    <input type="text" id="dropdown-filter" placeholder="Filter materials…">
+    <div id="dropdown-list"></div>
   </div>
 
   <script>
-    // rows[i] = { fromName, toName, el (tr) }
+    // rows[i] = { fromName, toName, el, swatchEl, displayEl }
     var rows = [];
-    // allMaterials includes the synthetic __default__ entry at index 0
+    // allMaterials[0] is always the synthetic __default__ entry
     var allMaterials = [];
     var selectedIndices = [];
     var lastClickedIndex = null;
+    // Callback to invoke when the user picks an option in the dropdown
+    var activeOnSelect = null;
+    // Currently selected value in the bulk dropdown
+    var bulkValue = '__default__';
 
-    // ── Called by Ruby after dialog loads ──────────────────────────────────
+    // ── Called by Ruby after dialog loads ────────────────────────────────
     function initializeDialog(data) {
       allMaterials = [
         { name: '__default__', color_hex: '#cccccc', has_texture: false }
       ].concat(data.allMaterials);
-
-      populateBulkSelect();
 
       var tbody = document.getElementById('mat-body');
       tbody.innerHTML = '';
@@ -225,56 +283,164 @@
             (mat.has_texture ? '<span class="tex-icon" title="Has texture">⬛</span>' : '') +
           '</div></td>' +
           '<td class="arrow-cell">→</td>' +
-          '<td><select class="target-select">' + buildOptions(mat.name) + '</select></td>';
+          '<td class="target-cell">' +
+            '<div class="select-wrapper" data-row="' + i + '">' +
+              '<span class="swatch row-swatch"></span>' +
+              '<input type="text" class="select-display" readonly>' +
+              '<span class="select-arrow">▾</span>' +
+            '</div>' +
+          '</td>';
 
-        tr.querySelector('select').addEventListener('change', function() {
-          onTargetChange(i);
-        });
-        tr.addEventListener('click', function(e) {
-          onRowClick(e, i);
+        var wrapper = tr.querySelector('.select-wrapper');
+        wrapper.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openDropdown(wrapper, function(value) {
+            setRowValue(i, value);
+            updateRowStyle(i);
+            updateApplyButton();
+          });
         });
 
+        tr.addEventListener('click', function(e) { onRowClick(e, i); });
         tbody.appendChild(tr);
-        rows.push({ fromName: mat.name, toName: mat.name, el: tr });
+
+        var row = {
+          fromName:  mat.name,
+          toName:    mat.name,
+          el:        tr,
+          swatchEl:  tr.querySelector('.row-swatch'),
+          displayEl: tr.querySelector('.select-display')
+        };
+        rows.push(row);
+        applyDisplayValue(row.swatchEl, row.displayEl, mat.name);
       });
 
+      // Initialise bulk dropdown display to __default__
+      applyDisplayValue(
+        document.getElementById('bulk-swatch'),
+        document.getElementById('bulk-display'),
+        '__default__'
+      );
+
       updateApplyButton();
     }
 
-    // ── Build <option> list for a target dropdown ──────────────────────────
-    function buildOptions(selectedName) {
-      return allMaterials.map(function(m) {
-        var label = m.name === '__default__' ? 'Default' : escHtml(m.name);
-        var sel   = m.name === selectedName ? ' selected' : '';
-        return '<option value="' + escAttr(m.name) + '"' + sel + '>' + label + '</option>';
-      }).join('');
+    // ── Set a row's target and update its visual display ─────────────────
+    function setRowValue(i, value) {
+      rows[i].toName = value;
+      applyDisplayValue(rows[i].swatchEl, rows[i].displayEl, value);
     }
 
-    // ── Populate bulk-action target dropdown ──────────────────────────────
-    function populateBulkSelect() {
-      var sel = document.getElementById('bulk-target');
-      sel.innerHTML = allMaterials.map(function(m) {
-        var label = m.name === '__default__' ? 'Default' : escHtml(m.name);
-        return '<option value="' + escAttr(m.name) + '">' + label + '</option>';
-      }).join('');
+    function applyDisplayValue(swatchEl, displayEl, value) {
+      var mat = findMaterial(value);
+      if (!mat) return;
+      swatchEl.style.background = mat.color_hex;
+      displayEl.value = value === '__default__' ? 'Default' : mat.name;
     }
 
-    // ── Handle target dropdown change ─────────────────────────────────────
-    function onTargetChange(i) {
-      rows[i].toName = rows[i].el.querySelector('select').value;
-      updateRowStyle(i);
-      updateApplyButton();
+    function findMaterial(name) {
+      for (var i = 0; i < allMaterials.length; i++) {
+        if (allMaterials[i].name === name) return allMaterials[i];
+      }
+      return null;
     }
 
+    // ── Shared searchable dropdown ────────────────────────────────────────
+    function openDropdown(wrapperEl, onSelect) {
+      activeOnSelect = onSelect;
+
+      var overlay  = document.getElementById('dropdown-overlay');
+      var filterEl = document.getElementById('dropdown-filter');
+      filterEl.value = '';
+      renderDropdownList('');
+
+      // Position: open below the wrapper, or above if not enough space
+      var rect       = wrapperEl.getBoundingClientRect();
+      var overlayW   = Math.max(rect.width, 180);
+      var maxH       = 220;
+      var spaceBelow = window.innerHeight - rect.bottom - 4;
+      var spaceAbove = rect.top - 4;
+
+      overlay.style.width  = overlayW + 'px';
+      overlay.style.left   = rect.left + 'px';
+      overlay.style.display = 'flex';
+
+      if (spaceBelow >= 100 || spaceBelow >= spaceAbove) {
+        overlay.style.top    = (rect.bottom + 2) + 'px';
+        overlay.style.bottom = 'auto';
+        overlay.style.maxHeight = Math.min(maxH, Math.max(spaceBelow, 80)) + 'px';
+      } else {
+        overlay.style.bottom = (window.innerHeight - rect.top + 2) + 'px';
+        overlay.style.top    = 'auto';
+        overlay.style.maxHeight = Math.min(maxH, Math.max(spaceAbove, 80)) + 'px';
+      }
+
+      filterEl.focus();
+    }
+
+    function renderDropdownList(query) {
+      var list = document.getElementById('dropdown-list');
+      var q    = query.toLowerCase();
+      list.innerHTML = '';
+      var count = 0;
+
+      allMaterials.forEach(function(mat) {
+        var label = mat.name === '__default__' ? 'Default' : mat.name;
+        if (q && label.toLowerCase().indexOf(q) === -1) return;
+
+        var div = document.createElement('div');
+        div.className = 'dropdown-option';
+        div.innerHTML =
+          '<span class="swatch" style="background:' + mat.color_hex + '"></span>' +
+          '<span>' + escHtml(label) + '</span>';
+        div.addEventListener('click', function() {
+          if (activeOnSelect) activeOnSelect(mat.name);
+          closeDropdown();
+        });
+        list.appendChild(div);
+        count++;
+      });
+
+      if (count === 0) {
+        var empty = document.createElement('div');
+        empty.id = 'dropdown-empty';
+        empty.textContent = 'No matches';
+        list.appendChild(empty);
+      }
+    }
+
+    function closeDropdown() {
+      document.getElementById('dropdown-overlay').style.display = 'none';
+      activeOnSelect = null;
+    }
+
+    document.getElementById('dropdown-filter').addEventListener('input', function() {
+      renderDropdownList(this.value);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+      var overlay = document.getElementById('dropdown-overlay');
+      if (overlay.style.display !== 'none' && !overlay.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeDropdown();
+    });
+
+    // ── Row visual state ──────────────────────────────────────────────────
     function updateRowStyle(i) {
-      var changed = rows[i].toName !== rows[i].fromName;
-      rows[i].el.classList.toggle('changed', changed);
+      rows[i].el.classList.toggle('changed', rows[i].toName !== rows[i].fromName);
     }
 
-    // ── Row selection (click / Shift+click / Ctrl+click) ──────────────────
+    // ── Row selection ─────────────────────────────────────────────────────
     function onRowClick(e, i) {
-      // Don't intercept clicks on the <select> itself
-      if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+      // Ignore if a dropdown wrapper was clicked (handled separately)
+      if (e.target.closest && e.target.closest('.select-wrapper')) return;
+      // Ignore if dropdown overlay is open
+      if (document.getElementById('dropdown-overlay').style.display !== 'none') return;
 
       if (e.shiftKey && lastClickedIndex !== null) {
         var lo = Math.min(lastClickedIndex, i);
@@ -299,37 +465,39 @@
       rows.forEach(function(row, i) {
         row.el.classList.toggle('selected', selectedIndices.indexOf(i) !== -1);
       });
-      var bulkBar = document.getElementById('bulk-bar');
-      bulkBar.classList.toggle('visible', selectedIndices.length > 0);
+      var hasSel = selectedIndices.length > 0;
+      document.getElementById('bulk-section').classList.toggle('visible', hasSel);
+      document.getElementById('footer-hint').style.display = hasSel ? 'none' : 'block';
     }
 
-    // ── Bulk set target for selected rows ─────────────────────────────────
+    // ── Bulk target dropdown ──────────────────────────────────────────────
+    document.getElementById('bulk-select-wrapper').addEventListener('click', function(e) {
+      e.stopPropagation();
+      var wrapper = this;
+      openDropdown(wrapper, function(value) {
+        bulkValue = value;
+        applyDisplayValue(
+          document.getElementById('bulk-swatch'),
+          document.getElementById('bulk-display'),
+          value
+        );
+      });
+    });
+
     document.getElementById('bulk-set').addEventListener('click', function() {
-      var target = document.getElementById('bulk-target').value;
       selectedIndices.forEach(function(i) {
-        rows[i].toName = target;
-        rows[i].el.querySelector('select').value = target;
+        setRowValue(i, bulkValue);
         updateRowStyle(i);
       });
       updateApplyButton();
     });
 
-    // ── Filter ────────────────────────────────────────────────────────────
-    document.getElementById('filter').addEventListener('input', function() {
-      var q = this.value.toLowerCase();
-      rows.forEach(function(row) {
-        var visible = row.fromName.toLowerCase().indexOf(q) !== -1;
-        row.el.style.display = visible ? '' : 'none';
-      });
-    });
-
-    // ── Apply button state ────────────────────────────────────────────────
+    // ── Apply ─────────────────────────────────────────────────────────────
     function updateApplyButton() {
       var hasChanges = rows.some(function(r) { return r.toName !== r.fromName; });
       document.getElementById('btn-apply').disabled = !hasChanges;
     }
 
-    // ── Apply: send changed pairs to Ruby ─────────────────────────────────
     document.getElementById('btn-apply').addEventListener('click', function() {
       var pairs = rows
         .filter(function(r) { return r.toName !== r.fromName; })
@@ -337,12 +505,11 @@
       sketchup.apply_swap(pairs);
     });
 
-    // ── Close ─────────────────────────────────────────────────────────────
     document.getElementById('btn-close').addEventListener('click', function() {
       sketchup.close_dialog({});
     });
 
-    // ── HTML escaping helpers ─────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────
     function escHtml(str) {
       return String(str)
         .replace(/&/g, '&amp;')
@@ -350,12 +517,9 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
-    function escAttr(str) { return escHtml(str); }
 
-    // ── Signal Ruby that the page is ready ───────────────────────────────
-    window.addEventListener('load', function() {
-      sketchup.ready({});
-    });
+    // Signal Ruby that the page is ready to receive data
+    window.addEventListener('load', function() { sketchup.ready({}); });
   </script>
 </body>
 </html>
