@@ -2,8 +2,6 @@
 # Loaded by SketchupExtension when the extension is enabled.
 # Loads core modules and registers the menu item.
 
-require 'sketchup.rb'
-
 module MichaelLogutov
   module SwapMaterial
     Sketchup.require 'swap_material/core'
