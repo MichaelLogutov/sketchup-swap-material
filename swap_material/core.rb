@@ -12,7 +12,7 @@ module MichaelLogutov
         # Returns an Array of Sketchup::Material objects (no nils, no duplicates).
         def self.collect_materials(entities)
           materials = []
-          collect_recursive(entities, materials)
+          self.collect_recursive(entities, materials)
           materials.uniq
         end
 
@@ -26,10 +26,10 @@ module MichaelLogutov
               materials << entity.material if entity.material
             when Sketchup::Group
               materials << entity.material if entity.material
-              collect_recursive(entity.entities, materials)
+              self.collect_recursive(entity.entities, materials)
             when Sketchup::ComponentInstance
               materials << entity.material if entity.material
-              collect_recursive(entity.definition.entities, materials)
+              self.collect_recursive(entity.definition.entities, materials)
             end
           end
         end
@@ -44,7 +44,7 @@ module MichaelLogutov
 
           model = Sketchup.active_model
           model.start_operation('Swap Material', true)
-          swap_recursive(entities, mappings)
+          self.swap_recursive(entities, mappings)
           model.commit_operation
         end
 
@@ -65,13 +65,13 @@ module MichaelLogutov
                 mapping = mappings.find { |m| m[:from] == entity.material }
                 entity.material = mapping[:to] if mapping
               end
-              swap_recursive(entity.entities, mappings)
+              self.swap_recursive(entity.entities, mappings)
             when Sketchup::ComponentInstance
               if entity.material
                 mapping = mappings.find { |m| m[:from] == entity.material }
                 entity.material = mapping[:to] if mapping
               end
-              swap_recursive(entity.definition.entities, mappings)
+              self.swap_recursive(entity.definition.entities, mappings)
             end
           end
         end
