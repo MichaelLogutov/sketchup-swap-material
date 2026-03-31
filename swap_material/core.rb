@@ -53,8 +53,8 @@ module MichaelLogutov
             case entity
             when Sketchup::Face
               mappings.each do |m|
-                entity.material      = m[:to] if entity.material      == m[:from]
-                entity.back_material = m[:to] if entity.back_material == m[:from]
+                self.swap_face_side(entity, m[:from], m[:to], true)
+                self.swap_face_side(entity, m[:from], m[:to], false)
               end
             when Sketchup::Edge
               mappings.each do |m|
@@ -76,6 +76,39 @@ module MichaelLogutov
           end
         end
         private_class_method :swap_recursive
+
+        # Replaces material on one side of a face (front or back), preserving
+        # UV mapping when both the old and new materials have textures.
+        def self.swap_face_side(face, from_mat, to_mat, front)
+          current = front ? face.material : face.back_material
+          return unless current == from_mat
+
+          # Save UV mapping when swapping between two textured materials.
+          # SketchUp resets UV coordinates on simple material assignment,
+          # so we read them before and restore them after via position_material.
+          uvs = nil
+          if current.texture && to_mat && to_mat.texture
+            uvh = face.get_UVHelper(front, !front)
+            uvs = []
+            face.vertices.each do |v|
+              pos = v.position
+              uvq = front ? uvh.get_front_UVQ(pos) : uvh.get_back_UVQ(pos)
+              next if uvq.z.abs < 1e-10
+              uvs << pos
+              uvs << Geom::Point3d.new(uvq.x / uvq.z, uvq.y / uvq.z, 0)
+            end
+            uvs = nil if uvs.length < 4 # need at least 2 vertex+UV pairs
+          end
+
+          if front
+            face.material = to_mat
+          else
+            face.back_material = to_mat
+          end
+
+          face.position_material(to_mat, uvs, front) if uvs
+        end
+        private_class_method :swap_face_side
 
         file_loaded(__FILE__)
       end
