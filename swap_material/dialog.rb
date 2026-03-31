@@ -65,8 +65,6 @@ module MichaelLogutov
             dlg.close
           end
 
-          dlg.add_action_callback('close_dialog') { |_ctx| dlg.close }
-
           dlg
         end
 

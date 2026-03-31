@@ -189,15 +189,6 @@
     }
     #btn-apply:hover:not(:disabled) { background: #3a5ce7; }
     #btn-apply:disabled { background: #b0b8d4; cursor: default; }
-    #btn-close {
-      padding: 4px 12px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    #btn-close:hover { background: #eee; }
   </style>
 </head>
 <body>
@@ -231,7 +222,6 @@
     <div id="footer-bottom">
       <span id="footer-hint">Click to select · Shift+click for range · Ctrl+click to toggle</span>
       <button id="btn-apply" disabled>Apply</button>
-      <button id="btn-close">Close</button>
     </div>
   </div>
 
@@ -505,10 +495,6 @@
         .filter(function(r) { return r.toName !== r.fromName; })
         .map(function(r) { return { from_name: r.fromName, to_name: r.toName }; });
       sketchup.apply_swap(pairs);
-    });
-
-    document.getElementById('btn-close').addEventListener('click', function() {
-      sketchup.close_dialog({});
     });
 
     // ── Helpers ───────────────────────────────────────────────────────────
