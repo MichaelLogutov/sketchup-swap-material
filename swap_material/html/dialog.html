@@ -1,4 +1,361 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Swap Material</title></head>
-<body><p>Loading…</p></body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Swap Material</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: #222;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      padding: 8px 10px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #filter {
+      flex: 1;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 13px;
+      outline: none;
+    }
+    #filter:focus { border-color: #4a6cf7; }
+
+    /* ── Bulk action bar ── */
+    #bulk-bar {
+      padding: 6px 10px;
+      background: #e8f0fe;
+      border-bottom: 1px solid #c5d3f0;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #bulk-bar.visible { display: flex; }
+    #bulk-label { color: #444; white-space: nowrap; }
+    #bulk-target {
+      flex: 1;
+      padding: 3px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+    #bulk-set {
+      padding: 4px 14px;
+      background: #4a6cf7;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    #bulk-set:hover { background: #3a5ce7; }
+
+    /* ── Table ── */
+    #table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: #fff;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f0f0f0;
+      border-bottom: 2px solid #ddd;
+      padding: 6px 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #444;
+    }
+    tbody tr {
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      user-select: none;
+    }
+    tbody tr:hover { background: #f7f7ff; }
+    tbody tr.selected { background: #dce8ff; }
+    tbody tr.changed { background: #fff8e1; }
+    tbody tr.selected.changed { background: #ccdeff; }
+    td { padding: 5px 10px; vertical-align: middle; }
+
+    .mat-cell { display: flex; align-items: center; gap: 6px; }
+    .swatch {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .tex-icon { font-size: 10px; color: #999; }
+    .mat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .arrow-cell { color: #aaa; text-align: center; width: 28px; padding: 5px 0; }
+
+    select.target-select {
+      width: 100%;
+      padding: 3px 4px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    #empty-msg {
+      padding: 48px 20px;
+      text-align: center;
+      color: #999;
+    }
+
+    /* ── Footer ── */
+    #footer {
+      padding: 8px 10px;
+      background: #f0f0f0;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #btn-close {
+      padding: 5px 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #btn-close:hover { background: #eee; }
+    #btn-apply {
+      padding: 5px 18px;
+      background: #4a6cf7;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    #btn-apply:hover:not(:disabled) { background: #3a5ce7; }
+    #btn-apply:disabled { background: #b0b8d4; cursor: default; }
+  </style>
+</head>
+<body>
+
+  <div id="toolbar">
+    <input id="filter" type="text" placeholder="Filter source materials…">
+  </div>
+
+  <div id="bulk-bar">
+    <span id="bulk-label">Set target for selected:</span>
+    <select id="bulk-target"></select>
+    <button id="bulk-set">Set</button>
+  </div>
+
+  <div id="table-container">
+    <p id="empty-msg" style="display:none">No materials found in the selection.</p>
+    <table id="mat-table">
+      <thead>
+        <tr>
+          <th style="width:38%">Source Material</th>
+          <th style="width:28px"></th>
+          <th>Target Material</th>
+        </tr>
+      </thead>
+      <tbody id="mat-body"></tbody>
+    </table>
+  </div>
+
+  <div id="footer">
+    <button id="btn-close">Close</button>
+    <button id="btn-apply" disabled>Apply</button>
+  </div>
+
+  <script>
+    // rows[i] = { fromName, toName, el (tr) }
+    var rows = [];
+    // allMaterials includes the synthetic __default__ entry at index 0
+    var allMaterials = [];
+    var selectedIndices = [];
+    var lastClickedIndex = null;
+
+    // ── Called by Ruby after dialog loads ──────────────────────────────────
+    function initializeDialog(data) {
+      allMaterials = [
+        { name: '__default__', color_hex: '#cccccc', has_texture: false }
+      ].concat(data.allMaterials);
+
+      populateBulkSelect();
+
+      var tbody = document.getElementById('mat-body');
+      tbody.innerHTML = '';
+      rows = [];
+
+      if (data.sourceMaterials.length === 0) {
+        document.getElementById('mat-table').style.display = 'none';
+        document.getElementById('empty-msg').style.display = 'block';
+        return;
+      }
+
+      data.sourceMaterials.forEach(function(mat, i) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><div class="mat-cell">' +
+            '<span class="swatch" style="background:' + mat.color_hex + '"></span>' +
+            '<span class="mat-name" title="' + escHtml(mat.name) + '">' + escHtml(mat.name) + '</span>' +
+            (mat.has_texture ? '<span class="tex-icon" title="Has texture">⬛</span>' : '') +
+          '</div></td>' +
+          '<td class="arrow-cell">→</td>' +
+          '<td><select class="target-select">' + buildOptions(mat.name) + '</select></td>';
+
+        tr.querySelector('select').addEventListener('change', function() {
+          onTargetChange(i);
+        });
+        tr.addEventListener('click', function(e) {
+          onRowClick(e, i);
+        });
+
+        tbody.appendChild(tr);
+        rows.push({ fromName: mat.name, toName: mat.name, el: tr });
+      });
+
+      updateApplyButton();
+    }
+
+    // ── Build <option> list for a target dropdown ──────────────────────────
+    function buildOptions(selectedName) {
+      return allMaterials.map(function(m) {
+        var label = m.name === '__default__' ? 'Default' : escHtml(m.name);
+        var sel   = m.name === selectedName ? ' selected' : '';
+        return '<option value="' + escAttr(m.name) + '"' + sel + '>' + label + '</option>';
+      }).join('');
+    }
+
+    // ── Populate bulk-action target dropdown ──────────────────────────────
+    function populateBulkSelect() {
+      var sel = document.getElementById('bulk-target');
+      sel.innerHTML = allMaterials.map(function(m) {
+        var label = m.name === '__default__' ? 'Default' : escHtml(m.name);
+        return '<option value="' + escAttr(m.name) + '">' + label + '</option>';
+      }).join('');
+    }
+
+    // ── Handle target dropdown change ─────────────────────────────────────
+    function onTargetChange(i) {
+      rows[i].toName = rows[i].el.querySelector('select').value;
+      updateRowStyle(i);
+      updateApplyButton();
+    }
+
+    function updateRowStyle(i) {
+      var changed = rows[i].toName !== rows[i].fromName;
+      rows[i].el.classList.toggle('changed', changed);
+    }
+
+    // ── Row selection (click / Shift+click / Ctrl+click) ──────────────────
+    function onRowClick(e, i) {
+      // Don't intercept clicks on the <select> itself
+      if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+
+      if (e.shiftKey && lastClickedIndex !== null) {
+        var lo = Math.min(lastClickedIndex, i);
+        var hi = Math.max(lastClickedIndex, i);
+        for (var j = lo; j <= hi; j++) {
+          if (selectedIndices.indexOf(j) === -1) selectedIndices.push(j);
+        }
+      } else {
+        var pos = selectedIndices.indexOf(i);
+        if (e.ctrlKey || e.metaKey) {
+          if (pos === -1) selectedIndices.push(i);
+          else selectedIndices.splice(pos, 1);
+        } else {
+          selectedIndices = (selectedIndices.length === 1 && pos !== -1) ? [] : [i];
+        }
+      }
+      lastClickedIndex = i;
+      renderSelection();
+    }
+
+    function renderSelection() {
+      rows.forEach(function(row, i) {
+        row.el.classList.toggle('selected', selectedIndices.indexOf(i) !== -1);
+      });
+      var bulkBar = document.getElementById('bulk-bar');
+      bulkBar.classList.toggle('visible', selectedIndices.length > 0);
+    }
+
+    // ── Bulk set target for selected rows ─────────────────────────────────
+    document.getElementById('bulk-set').addEventListener('click', function() {
+      var target = document.getElementById('bulk-target').value;
+      selectedIndices.forEach(function(i) {
+        rows[i].toName = target;
+        rows[i].el.querySelector('select').value = target;
+        updateRowStyle(i);
+      });
+      updateApplyButton();
+    });
+
+    // ── Filter ────────────────────────────────────────────────────────────
+    document.getElementById('filter').addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      rows.forEach(function(row) {
+        var visible = row.fromName.toLowerCase().indexOf(q) !== -1;
+        row.el.style.display = visible ? '' : 'none';
+      });
+    });
+
+    // ── Apply button state ────────────────────────────────────────────────
+    function updateApplyButton() {
+      var hasChanges = rows.some(function(r) { return r.toName !== r.fromName; });
+      document.getElementById('btn-apply').disabled = !hasChanges;
+    }
+
+    // ── Apply: send changed pairs to Ruby ─────────────────────────────────
+    document.getElementById('btn-apply').addEventListener('click', function() {
+      var pairs = rows
+        .filter(function(r) { return r.toName !== r.fromName; })
+        .map(function(r) { return { from_name: r.fromName, to_name: r.toName }; });
+      sketchup.apply_swap(pairs);
+    });
+
+    // ── Close ─────────────────────────────────────────────────────────────
+    document.getElementById('btn-close').addEventListener('click', function() {
+      sketchup.close_dialog({});
+    });
+
+    // ── HTML escaping helpers ─────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function escAttr(str) { return escHtml(str); }
+
+    // ── Signal Ruby that the page is ready ───────────────────────────────
+    window.addEventListener('load', function() {
+      sketchup.ready({});
+    });
+  </script>
+</body>
 </html>
