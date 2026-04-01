@@ -14,16 +14,19 @@ module MichaelLogutov
         def self.show
           model    = Sketchup.active_model
           entities = model.selection.select do |e|
-            e.is_a?(Sketchup::Group) || e.is_a?(Sketchup::ComponentInstance)
+            e.is_a?(Sketchup::Face)              ||
+            e.is_a?(Sketchup::Edge)              ||
+            e.is_a?(Sketchup::Group)             ||
+            e.is_a?(Sketchup::ComponentInstance)
           end
 
           if entities.empty?
-            UI.messagebox('Please select at least one group or component.')
+            UI.messagebox('Please select at least one face, group or component.')
             return
           end
 
-          source_mats = Core.collect_materials(entities)
-          all_mats    = model.materials.to_a
+          source_mats = Core.collect_materials(entities).sort_by { |m| m.name.downcase }
+          all_mats    = model.materials.to_a.sort_by { |m| m.name.downcase }
 
           dlg = self.build_dialog(entities, source_mats, all_mats)
           dlg.set_file(HTML_PATH)

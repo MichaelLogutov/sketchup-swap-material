@@ -86,18 +86,17 @@ module MichaelLogutov
           # Save UV mapping when swapping between two textured materials.
           # SketchUp resets UV coordinates on simple material assignment,
           # so we read them before and restore them after via position_material.
-          uvs = nil
+          pairs = nil
           if current.texture && to_mat && to_mat.texture
             uvh = face.get_UVHelper(front, !front)
-            uvs = []
+            pts = []
             face.vertices.each do |v|
               pos = v.position
               uvq = front ? uvh.get_front_UVQ(pos) : uvh.get_back_UVQ(pos)
               next if uvq.z.abs < 1e-10
-              uvs << pos
-              uvs << Geom::Point3d.new(uvq.x / uvq.z, uvq.y / uvq.z, 0)
+              pts << [pos, Geom::Point3d.new(uvq.x / uvq.z, uvq.y / uvq.z, 0)]
             end
-            uvs = nil if uvs.length < 4 # need at least 2 vertex+UV pairs
+            pairs = self.pick_uv_pairs(pts)
           end
 
           if front
@@ -106,9 +105,94 @@ module MichaelLogutov
             face.back_material = to_mat
           end
 
-          face.position_material(to_mat, uvs, front) if uvs
+          if pairs
+            canon = self.uv_canonical_pts(pairs)
+            if canon
+              pm_pts = [canon[0], Geom::Point3d.new(0, 0, 0),
+                        canon[1], Geom::Point3d.new(1, 0, 0),
+                        canon[2], Geom::Point3d.new(0, 1, 0)]
+              begin
+                face.position_material(to_mat, pm_pts, front)
+              rescue ArgumentError
+                # UV preservation failed for this face (degenerate geometry)
+              end
+            end
+          end
         end
         private_class_method :swap_face_side
+
+        # Selects 3 non-degenerate [world_pos, uv] pairs from pts.
+        # Non-collinearity is required in both world space and UV space.
+        def self.pick_uv_pairs(pts)
+          return nil if pts.length < 2
+
+          result = [pts[0]]
+
+          # Second pair: different world position
+          pts[1..].each do |p|
+            next if p[0].distance(result[0][0]) <= 1e-10
+            result << p
+            break
+          end
+          return nil if result.length < 2
+
+          # Third pair: non-collinear in world AND UV space
+          w_vec  = result[1][0] - result[0][0]
+          uv_vec = result[1][1] - result[0][1]
+          pts.each do |p|
+            next if result.include?(p)
+            next if w_vec.cross(p[0]  - result[0][0]).length <= 1e-10
+            next if uv_vec.cross(p[1] - result[0][1]).length <= 1e-10
+            result << p
+            break
+          end
+
+          return nil if result.length < 3
+          result
+        end
+        private_class_method :pick_uv_pairs
+
+        # Given 3 [world_pt, uv_pt] pairs, computes the 3 world points that map to
+        # UV (0,0), (1,0) and (0,1) via the affine UV transform defined by those pairs.
+        # position_material works reliably with UV values in [0,1].
+        # The returned world points may lie outside the face boundary but are coplanar.
+        def self.uv_canonical_pts(pairs)
+          w0, u0 = pairs[0]
+          w1, u1 = pairs[1]
+          w2, u2 = pairs[2]
+
+          # Differences in UV space
+          du01 = [u1.x - u0.x, u1.y - u0.y]
+          du02 = [u2.x - u0.x, u2.y - u0.y]
+
+          det = du01[0] * du02[1] - du01[1] * du02[0]
+          return nil if det.abs < 1e-10
+
+          dw01 = w1 - w0
+          dw02 = w2 - w0
+
+          # Columns of the inverse UV→world matrix B
+          b0x = (dw01.x * du02[1] - dw02.x * du01[1]) / det
+          b0y = (dw01.y * du02[1] - dw02.y * du01[1]) / det
+          b0z = (dw01.z * du02[1] - dw02.z * du01[1]) / det
+
+          b1x = (dw02.x * du01[0] - dw01.x * du02[0]) / det
+          b1y = (dw02.y * du01[0] - dw01.y * du02[0]) / det
+          b1z = (dw02.z * du01[0] - dw01.z * du02[0]) / det
+
+          # World point at UV (0,0): p0 = w0 - B * u0
+          p0 = Geom::Point3d.new(
+            w0.x - b0x * u0.x - b1x * u0.y,
+            w0.y - b0y * u0.x - b1y * u0.y,
+            w0.z - b0z * u0.x - b1z * u0.y
+          )
+          # World points at UV (1,0) and (0,1): p0 + column of B
+          p1 = Geom::Point3d.new(p0.x + b0x, p0.y + b0y, p0.z + b0z)
+          p2 = Geom::Point3d.new(p0.x + b1x, p0.y + b1y, p0.z + b1z)
+
+          [p0, p1, p2]
+        end
+        private_class_method :uv_canonical_pts
 
         file_loaded(__FILE__)
       end
