@@ -10,7 +10,7 @@ module MichaelLogutov
     unless file_loaded?(__FILE__)
       ext = SketchupExtension.new('Swap Material', 'swap_material/main')
       ext.description = 'Replace one or more materials with another inside ' \
-                        'selected groups and components.'
+                        'selected faces, groups, and components.'
       ext.version     = '1.0.0'
       ext.copyright   = '2026 MichaelLogutov'
       ext.creator     = 'MichaelLogutov'
