@@ -1,5 +1,10 @@
 # Swap Material
 
+[![Latest release](https://img.shields.io/github/v/release/MichaelLogutov/sketchup-swap-material?sort=semver)](https://github.com/MichaelLogutov/sketchup-swap-material/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/MichaelLogutov/sketchup-swap-material)](LICENSE)
+[![SketchUp 2017+](https://img.shields.io/badge/SketchUp-2017%2B-005F9E)](https://www.sketchup.com)
+[![Extension Warehouse](https://img.shields.io/badge/Extension%20Warehouse-Swap%20Material-005F9E)](https://extensions.sketchup.com/extension/e5f2abae-ad93-45de-9ac1-1f3710898bed/swap-material)
+
 A SketchUp extension that replaces one or more materials with another inside selected geometry — faces, groups, and components — via a mapping-table dialog.
 
 ## Features
