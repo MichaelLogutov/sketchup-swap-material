@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g. 1.0.0). Leave empty to use value from swap_material.rb.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and publish .rbz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=$(grep -oP "ext\.version\s*=\s*'\K[^']+" swap_material.rb)
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "Could not determine version" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Inject version into swap_material.rb
+        run: |
+          sed -i "s/ext\.version\s*=\s*'[^']*'/ext.version     = '${{ steps.version.outputs.version }}'/" swap_material.rb
+          grep "ext.version" swap_material.rb
+
+      - name: Build .rbz
+        id: package
+        run: |
+          RBZ="Swap_Material-${{ steps.version.outputs.version }}.rbz"
+          zip -r "$RBZ" swap_material.rb swap_material LICENSE
+          echo "rbz=$RBZ" >> "$GITHUB_OUTPUT"
+          unzip -l "$RBZ"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.rbz }}
+          path: ${{ steps.package.outputs.rbz }}
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.package.outputs.rbz }}
+          generate_release_notes: true

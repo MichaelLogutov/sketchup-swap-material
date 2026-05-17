@@ -11,10 +11,20 @@ A SketchUp extension that replaces one or more materials with another inside sel
 - Preserves UV mapping when swapping between two textured materials
 - Single undoable operation (Ctrl+Z)
 
+## Screenshots
+
+Mapping each source material to a different target:
+
+![Swap Material dialog — per-row mapping](docs/screenshots/Screenshot1.png)
+
+Bulk-assigning the same target to multiple selected rows:
+
+![Swap Material dialog — bulk assign](docs/screenshots/Screenshot2.png)
+
 ## Installation
 
 **Via Extension Warehouse (recommended):**
-Search for "Swap Material" in the [SketchUp Extension Warehouse](https://extensions.sketchup.com) and install with one click.
+Install with one click from the [Swap Material page on SketchUp Extension Warehouse](https://extensions.sketchup.com/extension/e5f2abae-ad93-45de-9ac1-1f3710898bed/swap-material).
 
 **Manual install:**
 1. Download the latest `.rbz` from [Releases](../../releases)
